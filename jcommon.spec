@@ -6,6 +6,8 @@ Source:		http://prdownloads.sourceforge.net/jfreechart/jcommon-%{version}.tar.gz
 URL:		http://www.jfree.org/jcommon/
 Group:		Development/Java
 License:	LGPLv2+
+BuildArch:	noarch
+BuildRequires:	java
 BuildRequires:	ant jpackage-utils
 BuildRequires:	junit
 Requires:	junit
