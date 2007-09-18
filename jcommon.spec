@@ -7,10 +7,10 @@ URL:		http://www.jfree.org/jcommon/
 Group:		Development/Java
 License:	LGPLv2+
 BuildArch:	noarch
-BuildRequires:	java
+BuildRequires:	java-devel >= 1.7.0
 BuildRequires:	ant jpackage-utils
 BuildRequires:	junit
-Requires:	junit
+Requires:	java junit
 %description
 JCommon is a collection of useful classes used by JFreeChart, JFreeReport
 and other projects.
@@ -41,7 +41,8 @@ Javadoc for %name
 %build
 cd ant
 export CLASSPATH=$(/usr/bin/build-classpath junit)
-/usr/bin/ant compile compile-xml compile-junit-tests javadoc
+JAVA_HOME=/usr/lib/jvm/java \
+	/usr/bin/ant compile compile-xml compile-junit-tests javadoc
 
 %install
 %{__rm} -Rf %{buildroot}
