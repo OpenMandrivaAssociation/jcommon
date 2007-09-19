@@ -1,7 +1,7 @@
 Name:		jcommon
 Summary:	A collection of useful classes in Java
 Version:	1.0.9
-Release:	%mkrel 1
+Release:	%mkrel 2
 Source:		http://prdownloads.sourceforge.net/jfreechart/jcommon-%{version}.tar.gz
 URL:		http://www.jfree.org/jcommon/
 Group:		Development/Java
