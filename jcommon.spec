@@ -35,7 +35,7 @@
 
 Name:           jcommon
 Version:        1.0.9
-Release:        %mkrel 2.0.0
+Release:        %mkrel 2.0.1
 Epoch:          0
 Summary:        Common library
 License:        LGPL
@@ -44,7 +44,7 @@ Source0:        http://download.sourceforge.net/jfreechart/jcommon-%{version}.ta
 Group:          Development/Java
 BuildRequires:          ant >= 0:1.6.5
 BuildRequires:          junit
-BuildRequires:          jpackage-utils >= 0:1.6
+BuildRequires:          java-rpmbuild >= 0:1.6
 %if ! %{gcj_support}
 BuildArch:      noarch
 %endif
