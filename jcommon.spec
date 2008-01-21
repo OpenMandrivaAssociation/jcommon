@@ -34,8 +34,8 @@
 %define section free
 
 Name:           jcommon
-Version:        1.0.9
-Release:        %mkrel 2.0.1
+Version:        1.0.12
+Release:        %mkrel 0.0.1
 Epoch:          0
 Summary:        Common library
 License:        LGPL
@@ -79,9 +79,7 @@ Javadoc pour %{name}.
 %prep
 %setup -q
 %{__perl} -pi -e 's/^build\.target=.*/build.target=1.5/;' -e 's/^build\.source=.*/build.source=1.5/;' ant/build.properties
-
-# remove all binary libs
-find . -name "*.jar" -exec rm -f {} \;
+%remove_java_binaries
 
 %build
 export CLASSPATH=$(build-classpath junit)
@@ -108,34 +106,22 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{gcj_support}
 %post
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
+%{update_gcjdb}
 %endif
 
 %if %{gcj_support}
 %postun
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
+%{clean_gcjdb}
 %endif
 
 %if %{gcj_support}
 %post test
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
+%{update_gcjdb}
 %endif
 
 %if %{gcj_support}
 %postun test
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
+%{clean_gcjdb}
 %endif
 
 %files
