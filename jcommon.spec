@@ -33,7 +33,7 @@
 %define section free
 
 Name:           jcommon
-Version:        1.0.14
+Version:        1.0.16
 Release:        %mkrel 0.0.3
 Epoch:          0
 Summary:        Common library
