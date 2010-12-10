@@ -34,7 +34,7 @@
 
 Name:           jcommon
 Version:        1.0.16
-Release:        %mkrel 0.0.3
+Release:        %mkrel 0.0.4
 Epoch:          0
 Summary:        Common library
 License:        LGPL
