@@ -139,3 +139,59 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(0644,root,root,0755)
 %{_javadocdir}/%{name}-%{version}
 %{_javadocdir}/%{name}
+
+
+%changelog
+* Fri Dec 10 2010 Oden Eriksson <oeriksson@mandriva.com> 0:1.0.16-0.0.4mdv2011.0
++ Revision: 619786
+- the mass rebuild of 2010.0 packages
+
+* Fri Jul 31 2009 Jerome Martin <jmartin@mandriva.org> 0:1.0.16-0.0.3mdv2010.0
++ Revision: 405111
+- Version 1.0.16
+- rebuild
+
+* Fri Jul 31 2009 Jerome Martin <jmartin@mandriva.org> 0:1.0.14-0.0.2mdv2010.0
++ Revision: 405106
+- rebuild
+
+* Mon Oct 20 2008 Alexander Kurtakov <akurtakov@mandriva.org> 0:1.0.14-0.0.1mdv2009.1
++ Revision: 295811
+- add new sources
+- 1.0.14
+
+* Thu Aug 07 2008 Thierry Vignaud <tv@mandriva.org> 0:1.0.13-2.0.1mdv2009.0
++ Revision: 267208
+- rebuild early 2009.0 package (before pixel changes)
+
+* Fri Jun 13 2008 Alexander Kurtakov <akurtakov@mandriva.org> 0:1.0.13-0.0.1mdv2009.0
++ Revision: 218679
+- new version 1.0.13 and disable gcj compile
+
+* Mon Jan 21 2008 Alexander Kurtakov <akurtakov@mandriva.org> 0:1.0.12-0.0.1mdv2008.1
++ Revision: 155726
+- new version and spec cleanup
+
+  + Olivier Blin <oblin@mandriva.com>
+    - restore BuildRoot
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - kill re-definition of %%buildroot on Pixel's request
+
+* Sun Dec 16 2007 Anssi Hannula <anssi@mandriva.org> 0:1.0.9-2.0.1mdv2008.1
++ Revision: 120933
+- buildrequire java-rpmbuild, i.e. build with icedtea on x86(_64)
+
+* Fri Sep 21 2007 David Walluck <walluck@mandriva.org> 0:1.0.9-2.0.0mdv2008.0
++ Revision: 92004
+- bump release to be greater than previous package
+- sync with JPackage to fix compiler, javadoc installation and packaging, gcj support, and more
+
+* Wed Sep 19 2007 Nicolas Vigier <nvigier@mandriva.com> 1.0.9-2mdv2008.0
++ Revision: 90614
+- rebuild
+
+* Tue Sep 18 2007 Nicolas Vigier <nvigier@mandriva.com> 1.0.9-1mdv2008.0
++ Revision: 89745
+- Import jcommon
+
