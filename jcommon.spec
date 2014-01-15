@@ -1,197 +1,133 @@
-# Copyright (c) 2000-2007, JPackage Project
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the
-#    distribution.
-# 3. Neither the name of the JPackage Project nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+%{?_javapackages_macros:%_javapackages_macros}
+Name: jcommon
+Version: 1.0.18
+Release: 3.0%{?dist}
+Summary: JFree Java utility classes
+License: LGPLv2+
 
-%define gcj_support 0
-
-%define section free
-
-Name:           jcommon
-Version:        1.0.16
-Release:        %mkrel 0.0.4
-Epoch:          0
-Summary:        Common library
-License:        LGPL
-Url:            http://www.jfree.org/jcommon/index.html
-Source0:        http://download.sourceforge.net/jfreechart/jcommon-%{version}.tar.gz
-Group:          Development/Java
-BuildRequires:          ant >= 0:1.6.5
-BuildRequires:          junit
-BuildRequires:          java-rpmbuild >= 0:1.6
-%if ! %{gcj_support}
-BuildArch:      noarch
-%endif
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-%if %{gcj_support}
-BuildRequires:    java-gcj-compat-devel
-%endif
+Source: http://downloads.sourceforge.net/jfreechart/%{name}-%{version}.tar.gz
+Source2: bnd.properties
+URL: http://www.jfree.org/jcommon
+BuildRequires: ant, java-devel, jpackage-utils
+# Required for converting jars to OSGi bundles
+BuildRequires:  aqute-bnd
+Requires: java, jpackage-utils
+BuildArch: noarch
 
 %description
-Collection of classes used by Object Refinery Projects,
-for example jfreechart
-
-%package test
-Summary:        Test tasks for %{name}
-Group:          Development/Java
-Requires:       %{name} = %{epoch}:%{version}-%{release}
-Requires:       junit
-
-%description test
-All test tasks for %{name}.
+JCommon is a collection of useful classes used by 
+JFreeChart, JFreeReport and other projects.
 
 %package javadoc
-Summary:        Javadoc for %{name}
-Group:          Development/Java
+Summary: Javadoc for %{name}
+
+Requires: %{name} = %{version}-%{release}
+Requires: jpackage-utils
 
 %description javadoc
-%{summary}.
+Javadoc for %{name}.
 
-%description javadoc -l fr
-Javadoc pour %{name}.
+%package xml
+Summary: JFree XML utility classes
+
+Requires: %{name} = %{version}-%{release}
+Requires: java, jpackage-utils
+
+%description xml
+Optional XML utility classes.
 
 %prep
 %setup -q
-%{__perl} -pi -e 's/^build\.target=.*/build.target=1.5/;' -e 's/^build\.source=.*/build.source=1.5/;' ant/build.properties
-%remove_java_binaries
+find . -name "*.jar" -exec rm -f {} \;
 
 %build
-export CLASSPATH=$(build-classpath junit)
-%{ant} -f ant/build.xml -Dbuildstable=true -Dproject.outdir=. -Dbasedir=. compile compile-junit-tests javadoc
+pushd ant
+ant compile compile-xml javadoc
+popd
+# Convert to OSGi bundle
+java -Djcommon.bundle.version="%{version}" \
+     -jar $(build-classpath aqute-bnd) wrap -output %{name}-%{version}.bar -properties %{SOURCE2} %{name}-%{version}.jar
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -d -m 755 $RPM_BUILD_ROOT%{_javadir}/%{name}
-# jars
-install -d -m 755 $RPM_BUILD_ROOT%{_javadir}
-install -m 644 %{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}
-install -m 644 lib/%{name}-%{version}-junit.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-junit-%{version}.jar
-(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}*.jar; do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`; done)
-# javadoc
-install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-cp -pr javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
-%{gcj_compile}
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
+cp -p %{name}-%{version}.bar $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
+cp -p %{name}-xml-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-xml.jar
 
-%clean
-rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}
+cp -rp javadoc $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 
-%if %{gcj_support}
-%post
-%{update_gcjdb}
-%endif
+install -d -m 755 %{buildroot}%{_mavenpomdir}
+install -pm 644 pom.xml %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 
-%if %{gcj_support}
-%postun
-%{clean_gcjdb}
-%endif
-
-%if %{gcj_support}
-%post test
-%{update_gcjdb}
-%endif
-
-%if %{gcj_support}
-%postun test
-%{clean_gcjdb}
-%endif
+%add_maven_depmap JPP-%{name}.pom %{name}.jar
 
 %files
-%defattr(0644,root,root,0755)
 %doc licence-LGPL.txt README.txt
+%{_mavenpomdir}/*
+%{_mavendepmapfragdir}/*
 %{_javadir}/%{name}.jar
-%{_javadir}/%{name}-%{version}.jar
-%dir %{_javadir}/%{name}
-%{gcj_files}
 
-%files test
-%defattr(0644,root,root,0755)
-%{_javadir}/%{name}-junit-%{version}.jar
-%{_javadir}/%{name}-junit.jar
-%{gcj_files}
+%files xml
+%{_javadir}/%{name}-xml.jar
 
 %files javadoc
-%defattr(0644,root,root,0755)
-%{_javadocdir}/%{name}-%{version}
 %{_javadocdir}/%{name}
 
-
 %changelog
-* Fri Dec 10 2010 Oden Eriksson <oeriksson@mandriva.com> 0:1.0.16-0.0.4mdv2011.0
-+ Revision: 619786
-- the mass rebuild of 2010.0 packages
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.18-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
-* Fri Jul 31 2009 Jerome Martin <jmartin@mandriva.org> 0:1.0.16-0.0.3mdv2010.0
-+ Revision: 405111
-- Version 1.0.16
-- rebuild
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.18-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
-* Fri Jul 31 2009 Jerome Martin <jmartin@mandriva.org> 0:1.0.14-0.0.2mdv2010.0
-+ Revision: 405106
-- rebuild
+* Thu Oct 25 2012 Severin Gehwolf <sgehwolf@redhat.com> 1.0.18-1
+- Update to upstream 1.0.18 release.
 
-* Mon Oct 20 2008 Alexander Kurtakov <akurtakov@mandriva.org> 0:1.0.14-0.0.1mdv2009.1
-+ Revision: 295811
-- add new sources
-- 1.0.14
+* Mon Sep 17 2012 Severin Gehwolf <sgehwolf@redhat.com> 1.0.17-5
+- Add proper Bundle-{Version,Name,SymbolicName} via
+  bnd.properties file
 
-* Thu Aug 07 2008 Thierry Vignaud <tv@mandriva.org> 0:1.0.13-2.0.1mdv2009.0
-+ Revision: 267208
-- rebuild early 2009.0 package (before pixel changes)
+* Tue Jul 24 2012 Severin Gehwolf <sgehwolf@redhat.com> 1.0.17-4
+- Add aqute bnd instructions so as to produce OSGi metadata.
 
-* Fri Jun 13 2008 Alexander Kurtakov <akurtakov@mandriva.org> 0:1.0.13-0.0.1mdv2009.0
-+ Revision: 218679
-- new version 1.0.13 and disable gcj compile
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.17-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
-* Mon Jan 21 2008 Alexander Kurtakov <akurtakov@mandriva.org> 0:1.0.12-0.0.1mdv2008.1
-+ Revision: 155726
-- new version and spec cleanup
+* Thu May 03 2012 Roman Kennke <rkennke@redhat.com> 1.0.17-2
+- Install pom and maven depmap.
 
-  + Olivier Blin <oblin@mandriva.com>
-    - restore BuildRoot
+* Thu Apr 12 2012 Alexander Kurtakov <akurtako@redhat.com> 1.0.17-1
+- Update to latest upstream release.
 
-  + Thierry Vignaud <tv@mandriva.org>
-    - kill re-definition of %%buildroot on Pixel's request
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.16-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
-* Sun Dec 16 2007 Anssi Hannula <anssi@mandriva.org> 0:1.0.9-2.0.1mdv2008.1
-+ Revision: 120933
-- buildrequire java-rpmbuild, i.e. build with icedtea on x86(_64)
+* Fri Oct 28 2011 Caolán McNamara <caolanm@redhat.com> 1.0.16-4
+- Related: rhbz#749103 drop gcj aot
 
-* Fri Sep 21 2007 David Walluck <walluck@mandriva.org> 0:1.0.9-2.0.0mdv2008.0
-+ Revision: 92004
-- bump release to be greater than previous package
-- sync with JPackage to fix compiler, javadoc installation and packaging, gcj support, and more
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.16-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
-* Wed Sep 19 2007 Nicolas Vigier <nvigier@mandriva.com> 1.0.9-2mdv2008.0
-+ Revision: 90614
-- rebuild
+* Fri Jul 24 2009 Caolan McNamara <caolanm@redhat.com> 1.0.16-2
+- make javadoc no-arch when building as arch-dependant aot
 
-* Tue Sep 18 2007 Nicolas Vigier <nvigier@mandriva.com> 1.0.9-1mdv2008.0
-+ Revision: 89745
-- Import jcommon
+* Sat Apr 25 2009 Caolan McNamara <caolanm@redhat.com> 1.0.16-1
+- latest version
 
+* Mon Mar 09 2009 Caolan McNamara <caolanm@redhat.com> 1.0.15-1
+- latest version
+
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.12-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Wed May 07 2008 Caolan McNamara <caolanm@redhat.com> 1.0.12-4
+- shuffle around
+
+* Thu May 01 2008 Caolan McNamara <caolanm@redhat.com> 1.0.12-3
+- fix review problems and add jcommon-xml subpackage
+
+* Wed Apr 30 2008 Caolan McNamara <caolanm@redhat.com> 1.0.12-2
+- take loganjerry's fixes
+
+* Mon Feb 25 2008 Caolan McNamara <caolanm@redhat.com> 1.0.12-1
+- initial fedora import
