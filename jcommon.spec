@@ -11,7 +11,7 @@ Group: Development/Java
 # Source retrieved via:
 #  bash getsources.sh 1ea10aa82e30e0d60f57e1c562281a3ac7dd5cdd 1.0.23
 Source: %{name}-%{version}.tar.gz
-URL: http://www.jfree.org/jcommon
+URL: https://www.jfree.org/jcommon
 BuildRequires: maven-local
 BuildRequires: maven-plugin-bundle
 Requires: java-headless, jpackage-utils
