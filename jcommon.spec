@@ -9,6 +9,9 @@ Source0: https://github.com/jfree/jcommon/archive/refs/tags/v%{version}.tar.gz
 URL: https://github.com/jfree/jcommon
 Requires: java-headless, javapackages-filesystem
 BuildArch: noarch
+# Literal, so the first rpmbuild -bs records them before sysjar is installed.
+BuildRequires:	maven
+BuildRequires:	java-current-devel
 BuildSystem:	maven
 
 %description
